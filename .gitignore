@@ -1,0 +1,27 @@
+# Ignore Ruby-specific files
+*.gem
+*.rbc
+.bundle/
+config/credentials.yml.enc
+log/*
+tmp/*
+coverage/
+spec/tmp/
+
+# Ignore WAL files
+wal/
+
+# Ignore generated SSTable files
+data/
+
+# Ignore other potential files
+.DS_Store
+*.swp
+*.swo
+*.log
+
+# Ignore Bundler config
+.bundle/
+
+# Ignore environment-specific files
+.env
