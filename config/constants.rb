@@ -1,0 +1,4 @@
+module Constants
+  MEMTABLE_SIZE_LIMIT = 30
+  SSTABLE_SIZE_LIMIT = 30
+end
