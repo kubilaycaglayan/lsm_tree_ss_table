@@ -1,13 +1,6 @@
-# exceptions.rb
-
 class KeyNotFoundError < StandardError
-  def initialize(msg = "Key not found")
-    super
+  def initialize(key, msg = "Key not found")
+    super("#{msg}: #{key}")
   end
 end
 
-class InvalidOperationError < StandardError
-  def initialize(msg = "Invalid operation")
-    super
-  end
-end

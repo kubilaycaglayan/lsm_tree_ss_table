@@ -27,7 +27,7 @@ class MemTable
   end
 
   def get(key)
-    raise KeyNotFoundError unless @data[key]
+    raise KeyNotFoundError.new(key) unless @data[key]
 
     @data[key]
   end

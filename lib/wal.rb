@@ -28,8 +28,6 @@ class WAL
   end
 
   def flush
-    File.open(@file_path, 'w') do |file|
-      file.puts('')
-    end
+    File.open(@file_path, 'w') {}
   end
 end

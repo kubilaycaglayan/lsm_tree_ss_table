@@ -2,11 +2,15 @@ require_relative 'memtable'
 require_relative 'sstable'
 require_relative 'wal'
 require_relative 'exceptions'
+require_relative '../config/constants'
+require_relative '../config/prep'
+require_relative '../config/paths'
 
 class KeyValueStore
   include Singleton
 
   def initialize
+    create_directories
     @memtable = MemTable.instance
     @wal = WAL.instance
   end
@@ -15,14 +19,14 @@ class KeyValueStore
     @wal.write({ key: key, value: value, timestamp: Time.now.strftime('%Y%m%d%H%M%S') })
     @memtable.add(key, value)
 
-    # TODO: flush_memtable if @memtable.size >= 30
+    flush_memtable if @memtable.size >= Constants::MEMTABLE_SIZE_LIMIT
   end
 
   def get(key)
     if @memtable.get(key)
-      @memtable.get(key)
+      @memtable.get(key)[:deleted] ? nil : @memtable.get(key)
     elsif @sstable.get(key)
-      @sstable.get(key)
+      @sstable.get(key)[:deleted] ? nil : @sstable.get(key)
     else
       raise KeyNotFoundError
     end
@@ -46,7 +50,7 @@ class KeyValueStore
   def flush_memtable
     begin
       timestamp = Time.now.strftime('%Y%m%d%H%M%S')
-      sstable = SSTable.new("data/sstable_#{timestamp}.dat")
+      sstable = SSTable.new("#{Paths::DATA_DIR_PATH}/sstable_#{timestamp}.dat")
       sstable.write(@memtable.to_h)
     rescue StandardError => e
       puts e.message
@@ -55,5 +59,15 @@ class KeyValueStore
       @memtable.flush
       @wal.flush
     end
+  end
+
+  def memtable_size
+    @memtable.size
+  end
+
+  def drop_store
+    @memtable.flush
+    @wal.flush
+    # @sstable.drop
   end
 end

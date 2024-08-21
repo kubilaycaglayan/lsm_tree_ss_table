@@ -1,7 +1,4 @@
-require_relative '../config/prep'
 require_relative '../lib/key_value_store'
-
-create_directories
 
 key_value_store = KeyValueStore.instance
 
