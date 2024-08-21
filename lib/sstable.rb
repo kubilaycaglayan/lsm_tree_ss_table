@@ -1,12 +1,17 @@
 require 'json'
 
+require_relative '../config/paths'
+
 class SSTable
-  def initialize(file_path)
-    @file_path = file_path
+  include Singleton
+  def initialize
+    @dir = Paths::DATA_DIR_PATH
   end
 
   def write(data)
-    File.open(@file_path, 'w') do |file|
+    timestamp = Time.now.strftime('%Y%m%d%H%M%S')
+    path = "#{@dir}/sstable_#{timestamp}.dat"
+    File.open(path, 'w') do |file|
       data.each do |key, value|
         file.puts({ key: key, value: value }.to_json)
       end
@@ -20,5 +25,11 @@ class SSTable
       data[entry['key']] = entry['value']
     end
     data
+  end
+
+  def drop
+    Dir.glob(File.join(@dir, '*')).each do |path|
+      FileUtils.rm_rf(path) if File.exist?(path)
+    end
   end
 end

@@ -13,6 +13,7 @@ class KeyValueStore
     create_directories
     @memtable = MemTable.instance
     @wal = WAL.instance
+    @sstable = SSTable.instance
   end
 
   def add(key, value)
@@ -49,9 +50,7 @@ class KeyValueStore
 
   def flush_memtable
     begin
-      timestamp = Time.now.strftime('%Y%m%d%H%M%S')
-      sstable = SSTable.new("#{Paths::DATA_DIR_PATH}/sstable_#{timestamp}.dat")
-      sstable.write(@memtable.to_h)
+      @sstable.write(@memtable.to_h)
     rescue StandardError => e
       puts e.message
       # TODO: Error handling
@@ -68,6 +67,6 @@ class KeyValueStore
   def drop_store
     @memtable.flush
     @wal.flush
-    # @sstable.drop
+    @sstable.drop
   end
 end

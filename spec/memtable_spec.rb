@@ -3,7 +3,7 @@ require 'spec_helper'
 require_relative '../lib/key_value_store'
 
 RSpec.describe KeyValueStore do
-  before(:each) do
+  after(:each) do
     KeyValueStore.instance.drop_store
   end
 
@@ -75,6 +75,32 @@ RSpec.describe KeyValueStore do
       end
 
       (1..Constants::MEMTABLE_SIZE_LIMIT + 1).each do |i|
+        expect(store.get("color#{i}")[:value]).to eq("red#{i}")
+      end
+    end
+  end
+
+  describe 'Performance' do
+    it 'Adds 1000 key-value pairs' do
+      store = KeyValueStore.instance
+
+      (1..1000).each do |i|
+        store.add("color#{i}", "red#{i}")
+      end
+
+      (1..1000).each do |i|
+        expect(store.get("color#{i}")[:value]).to eq("red#{i}")
+      end
+    end
+
+    it 'Adds 10000 key-value pairs' do
+      store = KeyValueStore.instance
+
+      (1..10000).each do |i|
+        store.add("color#{i}", "red#{i}")
+      end
+
+      (1..10000).each do |i|
         expect(store.get("color#{i}")[:value]).to eq("red#{i}")
       end
     end
