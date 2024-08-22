@@ -5,9 +5,10 @@ require_relative 'exceptions'
 require_relative '../config/constants'
 require_relative '../config/prep'
 require_relative '../config/paths'
+require_relative '../utils/timehelper'
 
 class KeyValueStore
-  include Singleton
+  include Singleton, TimeHelper
 
   def initialize
     create_directories_if_not_exist
@@ -17,7 +18,7 @@ class KeyValueStore
   end
 
   def add(key, value)
-    timestamp = Time.now.strftime('%Y%m%d%H%M%S')
+    timestamp = ts
 
     @wal.write(key, value, timestamp)
     @memtable.add(key, value, timestamp)
@@ -42,13 +43,14 @@ class KeyValueStore
   end
 
   def update(key, value)
-    timestamp = Time.now.strftime('%Y%m%d%H%M%S')
+    timestamp = ts
+
     @wal.write(key, value, timestamp)
     @memtable.update(key, value, timestamp)
   end
 
   def delete(key)
-    @wal.write(key, nil, Time.now.strftime('%Y%m%d%H%M%S'), true)
+    @wal.write(key, nil, ts, true)
 
     if @memtable.get(key) || @sstable.get(key)
       @memtable.delete(key)

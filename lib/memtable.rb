@@ -5,9 +5,10 @@ require_relative 'exceptions'
 require_relative 'wal'
 require_relative '../config/paths'
 require_relative '../config/constants'
+require_relative '../utils/timehelper'
 
 class MemTable
-  include Singleton
+  include Singleton, TimeHelper
 
   def initialize
     @wal = WAL.instance
@@ -33,11 +34,11 @@ class MemTable
 
     @data[key][:value] = nil
     @data[key][:deleted] = true
-    @data[key][:timestamp] = Time.now.strftime('%Y%m%d%H%M%S')
+    @data[key][:timestamp] = ts
   end
 
-  def update(key, value)
-    add(key, value)
+  def update(key, value, timestamp)
+    add(key, value, timestamp)
   end
 
   def to_h
