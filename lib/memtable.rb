@@ -27,13 +27,11 @@ class MemTable
   end
 
   def get(key)
-    raise KeyNotFoundError.new(key) unless @data[key]
-
     @data[key]
   end
 
   def delete(key)
-    raise KeyNotFoundError unless @data[key]
+    raise KeyNotFoundError.new(key) unless @data[key]
 
     @data[key][:value] = nil
     @data[key][:deleted] = true

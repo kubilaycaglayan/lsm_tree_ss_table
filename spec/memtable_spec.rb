@@ -54,7 +54,7 @@ RSpec.describe KeyValueStore do
     end
   end
 
-  describe 'SSTable' do
+  describe 'SSTable transfer' do
     it "Adds multiple(#{Constants::MEMTABLE_SIZE_LIMIT}) key-value pairs successfully and can read them" do
       store = KeyValueStore.instance
 
@@ -104,5 +104,16 @@ RSpec.describe KeyValueStore do
         expect(store.get("color#{i}")[:value]).to eq("red#{i}")
       end
     end
+  end
+
+  describe 'Sorted strings' do
+    # it 'sorts the keys correctly when added unsorted' do
+    #   store = KeyValueStore.instance
+    #   store.add('color', 'red')
+    #   store.add('animal', 'dog')
+    #   store.add('fruit', 'apple')
+
+    #   expect(store.get('animal')[:value]).to eq('dog')
+    # end
   end
 end

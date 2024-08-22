@@ -10,7 +10,7 @@ class KeyValueStore
   include Singleton
 
   def initialize
-    create_directories
+    create_directories_if_not_exist
     @memtable = MemTable.instance
     @wal = WAL.instance
     @sstable = SSTable.instance
@@ -24,13 +24,19 @@ class KeyValueStore
   end
 
   def get(key)
-    if @memtable.get(key)
-      @memtable.get(key)[:deleted] ? nil : @memtable.get(key)
-    elsif @sstable.get(key)
-      @sstable.get(key)[:deleted] ? nil : @sstable.get(key)
-    else
-      raise KeyNotFoundError
+    result = @memtable.get(key)
+
+    if result
+      return result[:deleted] ? nil : result
     end
+
+    result = @sstable.get(key)
+
+    if result
+      return result[:deleted] ? nil : result
+    end
+
+    raise KeyNotFoundError.new(key)
   end
 
   def update(key, value)
@@ -44,7 +50,7 @@ class KeyValueStore
     if @memtable.get(key) || @sstable.get(key)
       @memtable.delete(key)
     else
-      raise KeyNotFoundError
+      raise KeyNotFoundError.new(key)
     end
   end
 
@@ -55,8 +61,8 @@ class KeyValueStore
       puts e.message
       # TODO: Error handling
     else
-      @memtable.flush
       @wal.flush
+      @memtable.flush
     end
   end
 
