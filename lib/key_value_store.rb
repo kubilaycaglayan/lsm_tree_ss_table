@@ -17,8 +17,10 @@ class KeyValueStore
   end
 
   def add(key, value)
-    @wal.write({ key: key, value: value, timestamp: Time.now.strftime('%Y%m%d%H%M%S') })
-    @memtable.add(key, value)
+    timestamp = Time.now.strftime('%Y%m%d%H%M%S')
+
+    @wal.write(key, value, timestamp)
+    @memtable.add(key, value, timestamp)
 
     flush_memtable if @memtable.size >= Constants::MEMTABLE_SIZE_LIMIT
   end
@@ -40,12 +42,13 @@ class KeyValueStore
   end
 
   def update(key, value)
-    @wal.write({ key: key, value: value, timestamp: Time.now.strftime('%Y%m%d%H%M%S') })
-    @memtable.update(key, value)
+    timestamp = Time.now.strftime('%Y%m%d%H%M%S')
+    @wal.write(key, value, timestamp)
+    @memtable.update(key, value, timestamp)
   end
 
   def delete(key)
-    @wal.write({ key: key, value: nil, deleted: true, timestamp: Time.now.strftime('%Y%m%d%H%M%S') })
+    @wal.write(key, nil, Time.now.strftime('%Y%m%d%H%M%S'), true)
 
     if @memtable.get(key) || @sstable.get(key)
       @memtable.delete(key)
@@ -55,15 +58,10 @@ class KeyValueStore
   end
 
   def flush_memtable
-    begin
-      @sstable.write(@memtable.to_h)
-    rescue StandardError => e
-      puts e.message
-      # TODO: Error handling
-    else
-      @wal.flush
-      @memtable.flush
-    end
+    @sstable.write(@memtable.to_h)
+
+    @wal.flush
+    @memtable.flush
   end
 
   def memtable_size

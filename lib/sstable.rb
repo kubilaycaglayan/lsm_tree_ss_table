@@ -26,8 +26,8 @@ class SSTable
   def write(data)
     path = "#{@dir}/level_0_id_#{@file_id}.dat"
     File.open(path, 'w') do |file|
-      data.each do |key, value|
-        file.puts({ key: key, value: value }.to_json)
+      data.each do |key, value_of_key|
+        file.puts({ key: key, value: value_of_key[:value], timestamp: value_of_key[:timestamp] }.to_json)
       end
     end
     @file_id += 1
@@ -44,7 +44,7 @@ class SSTable
     # if data not exist in the level skip to the next level
     # if data not exist in any level, return nil
     # if data exist in the level, return
-    puts "level #{lvl} for key #{key}"
+    # puts "level #{lvl} for key #{key}"
 
     sorted_files_to_read = @file_names[lvl].sort_by do |filename|
       filename.match(/id_(\d+)/)[1].to_i
@@ -79,7 +79,12 @@ class SSTable
     data = {}
     File.readlines(file_path).each do |line|
       entry = JSON.parse(line)
-      data[entry['key']] = entry['value']
+      data[entry['key']] = {
+        value: entry['value'],
+        timestamp: entry['timestamp']
+      }
+
+      data[entry['key']][:deleted] = true if entry['deleted']
     end
     data
   end

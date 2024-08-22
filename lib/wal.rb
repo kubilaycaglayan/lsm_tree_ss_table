@@ -11,7 +11,10 @@ class WAL
     @file_path = Paths::WAL_FILE_PATH
   end
 
-  def write(data)
+  def write(key, value, timestamp, deleted = nil)
+    data = { key:, value:, timestamp: }
+    data[:deleted] = true if deleted
+
     File.open(@file_path, 'a') do |file|
       file.puts(data.to_json)
     end

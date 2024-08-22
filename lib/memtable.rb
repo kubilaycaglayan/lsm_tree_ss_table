@@ -17,9 +17,7 @@ class MemTable
     check_wal_and_load_data
   end
 
-  def add(key, value)
-    timestamp = Time.now.strftime('%Y%m%d%H%M%S')
-
+  def add(key, value, timestamp)
     @data[key] = {
       value: value,
       timestamp: timestamp
@@ -43,7 +41,7 @@ class MemTable
   end
 
   def to_h
-    @data
+    @data.to_h
   end
 
   def size
@@ -65,7 +63,11 @@ class MemTable
           puts "Error parsing JSON: \"#{line}\""
           next
         end
-        @data[data['key']] = data['value']
+        @data[data['key']] = {
+          value: data['value'],
+          timestamp: data['timestamp']
+        }
+        @data[data['key']][:deleted] = true if data['deleted']
       end
     end
 

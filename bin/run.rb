@@ -6,7 +6,7 @@ key_value_store = KeyValueStore.instance
 
 # Create a hash with 1000 faker name and age data
 data = {}
-(1..1000).each do
+(1..35).each do
   data[Faker::Name.unique.name] = Faker::Number.number(digits: 2)
 end
 puts
