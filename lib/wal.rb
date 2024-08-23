@@ -31,7 +31,7 @@ class WAL
   end
 
   def flush
-    # puts "Flushing WAL"
+    # puts "Flushing WAL #{@file_path}"
     File.open(@file_path, 'w') {}
   end
 end

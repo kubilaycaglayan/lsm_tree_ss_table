@@ -29,7 +29,7 @@ class MemTable
   end
 
   def delete(key)
-    raise KeyNotFoundError.new(key) unless @data[key]
+    @data[key] ||= {}
 
     @data[key][:value] = nil
     @data[key][:deleted] = true

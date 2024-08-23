@@ -14,6 +14,7 @@ class SSTable
     compute_shard_id
     # puts "SSTable initialized with shard id: #{@base_shard_id}"
     @shard_names = []
+    @files_memo = {}
     @level_depth = 0
     compute_storage_state
   end
@@ -43,9 +44,17 @@ class SSTable
     # TODO: use binary search
     # TODO: make sure to start from the recent data
 
+    if (@shard_names[lvl].nil? || @shard_names[lvl].empty?) && lvl < @level_depth
+      # puts "level #{lvl} not found, moving to next level #{key}"
+      get(key, lvl + 1)
+    end
+
     @shard_names[lvl].each do |shard_name|
-      data = read(File.join(@dir, shard_name))
-      return data[key] if data[key]
+      # data = read(File.join(@dir, shard_name))
+      # return data[key] if data[key]
+
+      result = binary_search_in_file(File.join(@dir, shard_name), key)
+      return result unless result.nil? || result[:deleted]
     end
 
     if lvl < @level_depth
@@ -66,6 +75,7 @@ class SSTable
       @shard_names[level.to_i] = [] unless @shard_names[level.to_i]
       @shard_names[level.to_i] << shard_name
     end
+    @files_memo = {}
     sort_shard_names
   end
 
@@ -88,6 +98,8 @@ class SSTable
   end
 
   def read(file_path)
+    return @files_memo[file_path] if @files_memo[file_path]
+
     data = {}
     File.readlines(file_path).each do |line|
       entry = JSON.parse(line)
@@ -98,7 +110,40 @@ class SSTable
 
       data[entry['key']][:deleted] = true if entry['deleted']
     end
+
+    @files_memo[file_path] = data
+
     data
+  end
+
+  def binary_search_in_file(file_path, key)
+    if @files_memo[file_path]
+      lines = @files_memo[file_path]
+    else
+      lines = File.readlines(file_path)
+      @files_memo[file_path] = lines
+    end
+
+    left, right = 0, lines.size - 1
+
+    while left <= right
+      mid = (left + right) / 2
+      entry = JSON.parse(lines[mid])
+
+      if entry['key'] == key
+        return {
+          value: entry['value'],
+          timestamp: entry['timestamp'],
+          deleted: entry['deleted'] || false
+        }
+      elsif entry['key'] > key
+        right = mid - 1
+      else
+        left = mid + 1
+      end
+    end
+
+    nil
   end
 
   def drop

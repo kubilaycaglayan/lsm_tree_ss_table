@@ -20,21 +20,23 @@ class KeyValueStore
   def add(key, value)
     timestamp = ts
 
-    @wal.write(key, value, timestamp)
-    @memtable.add(key, value, timestamp)
+    @wal.write(key.to_s, value, timestamp)
+    @memtable.add(key.to_s, value, timestamp)
 
     flush_memtable if @memtable.size >= Constants::MEMTABLE_SIZE_LIMIT
   end
 
   def get(key)
-    result = @memtable.get(key)
+    key_to_search = key.to_s
+
+    result = @memtable.get(key_to_search)
 
     if result
       # puts "case 1 #{result} -- #{result[:deleted] ? nil : result}"
       return result[:deleted] ? nil : result
     end
 
-    result = @sstable.get(key)
+    result = @sstable.get(key_to_search)
 
     if result
       # puts "case 2"
@@ -52,12 +54,14 @@ class KeyValueStore
   end
 
   def delete(key)
-    @wal.write(key, nil, ts, true)
+    key_to_be_deleted = key.to_s
 
-    if @memtable.get(key) || @sstable.get(key)
-      @memtable.delete(key)
+    @wal.write(key_to_be_deleted, nil, ts, true)
+
+    if @memtable.get(key_to_be_deleted) || @sstable.get(key_to_be_deleted)
+      @memtable.delete(key_to_be_deleted)
     else
-      raise KeyNotFoundError.new(key)
+      raise KeyNotFoundError.new(key_to_be_deleted)
     end
   end
 
