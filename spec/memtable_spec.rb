@@ -4,7 +4,7 @@ require_relative '../lib/key_value_store'
 
 RSpec.describe KeyValueStore do
   after(:each) do
-    # KeyValueStore.instance.drop_store
+    # KeyValueStore.instance.drop_store!
   end
 
   describe 'CRUD operations' do

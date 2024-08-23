@@ -60,6 +60,7 @@ class KeyValueStore
   end
 
   def flush_memtable
+    puts "Flushing memtable"
     @sstable.write(@memtable.to_h)
 
     @wal.flush
@@ -70,7 +71,7 @@ class KeyValueStore
     @memtable.size
   end
 
-  def drop_store
+  def drop_store!
     @memtable.flush
     @wal.flush
     @sstable.drop

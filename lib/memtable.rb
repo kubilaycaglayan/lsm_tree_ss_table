@@ -13,9 +13,8 @@ class MemTable
   def initialize
     @wal = WAL.instance
     @data = AVLTree.new
-    @memtable_size_limit = Constants::MEMTABLE_SIZE_LIMIT
 
-    check_wal_and_load_data
+    check_write_ahead_log_and_recover
   end
 
   def add(key, value, timestamp)
@@ -53,7 +52,7 @@ class MemTable
     @data = AVLTree.new
   end
 
-  def check_wal_and_load_data
+  def check_write_ahead_log_and_recover
     return unless File.exist?(Paths::WAL_FILE_PATH)
 
     File.open(Paths::WAL_FILE_PATH, 'r') do |file|
@@ -71,7 +70,5 @@ class MemTable
         @data[data['key']][:deleted] = true if data['deleted']
       end
     end
-
-    @wal.flush
   end
 end

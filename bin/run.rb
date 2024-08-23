@@ -6,7 +6,7 @@ key_value_store = KeyValueStore.instance
 
 # Create a hash with 1000 faker name and age data
 data = {}
-(1..35).each do
+(1..1000).each do
   data[Faker::Name.unique.name] = Faker::Number.number(digits: 2)
 end
 puts
@@ -22,11 +22,11 @@ end
 
 
 # Retrieve data
-puts "Value for 'key1': #{key_value_store.get(data.keys.first)}"
-puts "Value for 'key2': #{key_value_store.get(data.keys.last)}"
+puts "Value for 'key1' (#{data.keys.first}): #{key_value_store.get(data.keys.first)}"
+puts "Value for 'key2' (#{data.keys.last}): #{key_value_store.get(data.keys.last)}"
 
 # # Delete data
-# key_value_store.delete('key1')
+key_value_store.delete('key1')
 
 # # Retrieve deleted data
 # puts "Value for 'key1' after delete: #{key_value_store.get('key1')}"
