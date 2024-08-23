@@ -30,16 +30,18 @@ class KeyValueStore
     result = @memtable.get(key)
 
     if result
+      # puts "case 1 #{result} -- #{result[:deleted] ? nil : result}"
       return result[:deleted] ? nil : result
     end
 
     result = @sstable.get(key)
 
     if result
+      # puts "case 2"
       return result[:deleted] ? nil : result
     end
 
-    raise KeyNotFoundError.new(key)
+    nil
   end
 
   def update(key, value)
@@ -60,7 +62,7 @@ class KeyValueStore
   end
 
   def flush_memtable
-    puts "Flushing memtable"
+    # puts "Flushing memtable"
     @sstable.write(@memtable.to_h)
 
     @wal.flush

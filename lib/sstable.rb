@@ -12,7 +12,7 @@ class SSTable
     drop
     @base_shard_id = -1
     compute_shard_id
-    puts "SSTable initialized with shard id: #{@base_shard_id}"
+    # puts "SSTable initialized with shard id: #{@base_shard_id}"
     @shard_names = []
     @level_depth = 0
     compute_storage_state
@@ -41,7 +41,7 @@ class SSTable
 
   def get(key, lvl = 0)
     # TODO: use binary search
-    # TODO: start from the recent data
+    # TODO: make sure to start from the recent data
 
     @shard_names[lvl].each do |shard_name|
       data = read(File.join(@dir, shard_name))
@@ -49,10 +49,10 @@ class SSTable
     end
 
     if lvl < @level_depth
-      puts "level #{lvl} not found, moving to next level #{key}"
+      # puts "level #{lvl} not found, moving to next level #{key}"
       get(key, lvl + 1)
     else
-      puts "level #{lvl} not found, no more levels to search #{key}"
+      # puts "level #{lvl} not found, no more levels to search #{key}"
       nil
     end
   end
@@ -111,7 +111,7 @@ class SSTable
     should_compact_next_level = false
 
     while @shard_names[target_level].size >= Constants::SHARD_MULTIPLIER_FACTOR_PER_LEVEL do
-      puts "Compacting level #{target_level}"
+      # puts "Compacting level #{target_level}"
       shard_recent, shard = @shard_names[target_level].last(2)
       data_recent = read(File.join(@dir, shard_recent))
       data = read(File.join(@dir, shard))
@@ -124,7 +124,7 @@ class SSTable
         end
       end
 
-      puts "Compacting level #{target_level} finished - #{path}"
+      # puts "Compacting level #{target_level} finished - #{path}"
 
       FileUtils.rm_rf(File.join(@dir, shard_recent))
       FileUtils.rm_rf(File.join(@dir, shard))
@@ -138,7 +138,7 @@ class SSTable
   end
 
   def merge_sort(data, data_recent)
-    puts "Merge sort started, #{data.size} - #{data_recent.size}"
+    # puts "Merge sort started, #{data.size} - #{data_recent.size}"
 
     result = []
     i, j = 0, 0
@@ -153,17 +153,17 @@ class SSTable
       if key && key_recent
         if data[key][:deleted]
           i += 1
-          puts "Skipping deleted key #{key}"
+          # puts "Skipping deleted key #{key}"
           next
         elsif data_recent[key_recent][:deleted]
           j += 1
-          puts "Skipping deleted key #{key_recent}"
+          # puts "Skipping deleted key #{key_recent}"
           next
         elsif (key <=> key_recent).zero?
           result << key_to_hash(key, data)
           i += 1
           j += 1
-          puts "keys equal #{key} - #{key_recent}"
+          # puts "keys equal #{key} - #{key_recent}"
         elsif (key <=> key_recent) == -1
           result << key_to_hash(key, data)
           i += 1
@@ -180,7 +180,7 @@ class SSTable
       end
     end
 
-    puts "Merge sort finished, #{result.size}"
+    # puts "Merge sort finished, #{result.size}"
     # print result
     result
   end

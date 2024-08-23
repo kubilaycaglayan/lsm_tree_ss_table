@@ -9,11 +9,6 @@ data = {}
 (1..1000).each do
   data[Faker::Name.unique.name] = Faker::Number.number(digits: 2)
 end
-puts
-puts "Data size: #{data.size}"
-print data.first(5), "\n"
-print data.to_a.last(5)
-puts
 
 
 (0..(data.size - 1)).to_a.reverse.each do |i|
@@ -26,7 +21,13 @@ puts "Value for 'key1' (#{data.keys.first}): #{key_value_store.get(data.keys.fir
 puts "Value for 'key2' (#{data.keys.last}): #{key_value_store.get(data.keys.last)}"
 
 # # Delete data
-key_value_store.delete('key1')
+key_value_store.delete(data.keys.first)
 
 # # Retrieve deleted data
-# puts "Value for 'key1' after delete: #{key_value_store.get('key1')}"
+puts "Value for 'key1' after delete (#{data.keys.first}) is nil?: #{key_value_store.get(data.keys.first).nil?}"
+
+# update data
+n = Faker::Number.number(digits: 2)
+key_value_store.update(data.keys.last, n)
+puts n
+puts "Value for 'key2' after update (#{data.keys.last}): #{key_value_store.get(data.keys.last)}"
