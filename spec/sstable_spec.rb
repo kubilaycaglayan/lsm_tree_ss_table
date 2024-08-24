@@ -8,7 +8,7 @@ RSpec.describe KeyValueStore do
   end
 
   describe 'SSTable transfer' do
-    it "Adds multiple(#{Constants::MEMTABLE_SIZE_LIMIT}) key-value pairs successfully and can read them" do
+    it "Adds multiple(#{Constants::MEMTABLE_SIZE_LIMIT}) key-value pairs successfully and can read them (update limit))" do
       store = KeyValueStore.instance
 
       (1..Constants::MEMTABLE_SIZE_LIMIT).each do |i|
@@ -20,7 +20,7 @@ RSpec.describe KeyValueStore do
       end
     end
 
-    it "Can add more than #{Constants::MEMTABLE_SIZE_LIMIT}(31) key-value pairs" do
+    it "Can add more than #{Constants::MEMTABLE_SIZE_LIMIT}(31) key-value pair limit" do
       store = KeyValueStore.instance
 
       (1..Constants::MEMTABLE_SIZE_LIMIT + 1).each do |i|
