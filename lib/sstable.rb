@@ -28,7 +28,7 @@ class SSTable
   end
 
   def write(data)
-    path = "#{@dir}/level_0_id_#{@base_shard_id}.dat"
+    path = "#{@dir}/level_0_id_#{@base_shard_id}"
     File.open(path, 'w') do |file|
       data.each do |key, value_of_key|
         file.puts({ key: key, value: value_of_key[:value], timestamp: value_of_key[:timestamp] }.to_json)
