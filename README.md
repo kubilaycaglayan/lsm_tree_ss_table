@@ -1,6 +1,8 @@
 # Key-Value Storage with Write-Ahead Log, LSM Tree, and SSTable
 
-This repository is a practice project focused on building a key-value storage system using the SSTable architecture.
+This repository is a practice project focused on building a key-value storage system.
+It uses the SSTable, [LSM Tree](https://github.com/nahi/avl_tree) and Write-Ahead Log components. 
+It compresses files with merge sort algorithm. It includes a configuration file that you can set the size limits and compaction trigger numbers.
 
 ## Resources and Related Information
 
