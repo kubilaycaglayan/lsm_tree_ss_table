@@ -1,0 +1,60 @@
+```mermaid
+classDiagram
+    class KeyValueStore {
+        -MemTable @memtable
+        -WAL @wal
+        -SSTable @sstable
+        +add(key, value)
+        +get(key)
+        +update(key, value)
+        +delete(key)
+        +flush_memtable()
+        +memtable_size()
+        +drop_store!()
+    }
+    
+    class MemTable {
+        -WAL @wal
+        -AVLTree @data
+        +add(key, value, timestamp)
+        +get(key)
+        +delete(key)
+        +update(key, value, timestamp)
+        +to_h()
+        +size()
+        +flush()
+        +check_write_ahead_log_and_recover()
+    }
+    
+    class SSTable {
+        -String @dir
+        -int @base_shard_id
+        -List @shard_names
+        -Map @files_memo
+        -Map @file_lines_memo
+        -int @level_depth
+        +compute_shard_id()
+        +write(data)
+        +get(key, lvl)
+        +compute_storage_state()
+        +sort_shard_names()
+        +last_shard_id(level)
+        +read(file_path)
+        +binary_search_in_file(file_path, key)
+        +drop()
+        +compress_if_needed(target_level)
+        +merge_sort(data, data_recent)
+    }
+    
+    class WAL {
+        -String @file_path
+        +write(key, value, timestamp, deleted)
+        +read()
+        +flush()
+    }
+
+    KeyValueStore --> MemTable
+    KeyValueStore --> WAL
+    KeyValueStore --> SSTable
+    MemTable --> WAL
+```
