@@ -12,9 +12,9 @@ class SSTable
     drop
     @base_shard_id = -1
     compute_shard_id
-    # puts "SSTable initialized with shard id: #{@base_shard_id}"
     @shard_names = []
     @files_memo = {}
+    @file_lines_memo = {}
     @level_depth = 0
     compute_storage_state
   end
@@ -37,31 +37,22 @@ class SSTable
     @base_shard_id += 1
 
     compute_storage_state
-    compact_if_needed
+    compress_if_needed
   end
 
   def get(key, lvl = 0)
-    # TODO: use binary search
-    # TODO: make sure to start from the recent data
-
     if (@shard_names[lvl].nil? || @shard_names[lvl].empty?) && lvl < @level_depth
-      # puts "level #{lvl} not found, moving to next level #{key}"
       get(key, lvl + 1)
     end
 
     @shard_names[lvl].each do |shard_name|
-      # data = read(File.join(@dir, shard_name))
-      # return data[key] if data[key]
-
       result = binary_search_in_file(File.join(@dir, shard_name), key)
       return result unless result.nil? || result[:deleted]
     end
 
     if lvl < @level_depth
-      # puts "level #{lvl} not found, moving to next level #{key}"
       get(key, lvl + 1)
     else
-      # puts "level #{lvl} not found, no more levels to search #{key}"
       nil
     end
   end
@@ -76,6 +67,7 @@ class SSTable
       @shard_names[level.to_i] << shard_name
     end
     @files_memo = {}
+    @file_lines_memo = {}
     sort_shard_names
   end
 
@@ -117,11 +109,11 @@ class SSTable
   end
 
   def binary_search_in_file(file_path, key)
-    if @files_memo[file_path]
-      lines = @files_memo[file_path]
+    if @file_lines_memo[file_path]
+      lines = @file_lines_memo[file_path]
     else
       lines = File.readlines(file_path)
-      @files_memo[file_path] = lines
+      @file_lines_memo[file_path] = lines
     end
 
     left, right = 0, lines.size - 1
@@ -152,11 +144,10 @@ class SSTable
     end
   end
 
-  def compact_if_needed(target_level = 0)
-    should_compact_next_level = false
+  def compress_if_needed(target_level = 0)
+    should_compress_next_level = false
 
     while @shard_names[target_level].size >= Constants::SHARD_MULTIPLIER_FACTOR_PER_LEVEL do
-      # puts "Compacting level #{target_level}"
       shard_recent, shard = @shard_names[target_level].last(2)
       data_recent = read(File.join(@dir, shard_recent))
       data = read(File.join(@dir, shard))
@@ -169,21 +160,19 @@ class SSTable
         end
       end
 
-      # puts "Compacting level #{target_level} finished - #{path}"
 
       FileUtils.rm_rf(File.join(@dir, shard_recent))
       FileUtils.rm_rf(File.join(@dir, shard))
 
       compute_storage_state
 
-      should_compact_next_level = true
+      should_compress_next_level = true
     end
 
-    compact_if_needed(target_level + 1) if should_compact_next_level
+    compress_if_needed(target_level + 1) if should_compress_next_level
   end
 
   def merge_sort(data, data_recent)
-    # puts "Merge sort started, #{data.size} - #{data_recent.size}"
 
     result = []
     i, j = 0, 0
@@ -198,17 +187,14 @@ class SSTable
       if key && key_recent
         if data[key][:deleted]
           i += 1
-          # puts "Skipping deleted key #{key}"
           next
         elsif data_recent[key_recent][:deleted]
           j += 1
-          # puts "Skipping deleted key #{key_recent}"
           next
         elsif (key <=> key_recent).zero?
           result << key_to_hash(key, data)
           i += 1
           j += 1
-          # puts "keys equal #{key} - #{key_recent}"
         elsif (key <=> key_recent) == -1
           result << key_to_hash(key, data)
           i += 1
@@ -225,7 +211,6 @@ class SSTable
       end
     end
 
-    # puts "Merge sort finished, #{result.size}"
     # print result
     result
   end

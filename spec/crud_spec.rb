@@ -3,8 +3,6 @@ require 'faker'
 
 require_relative '../lib/key_value_store'
 
-# TODO: Improve unit tests, include faker.
-
 RSpec.describe KeyValueStore do
   before(:each) do
     KeyValueStore.instance.drop_store!
@@ -67,16 +65,5 @@ RSpec.describe KeyValueStore do
         expect(store.get(key)[:value]).to eq(value)
       end
     end
-  end
-
-  describe 'Sorted strings' do
-    # it 'sorts the keys correctly when added unsorted' do
-    #   store = KeyValueStore.instance
-    #   store.add('color', 'red')
-    #   store.add('animal', 'dog')
-    #   store.add('fruit', 'apple')
-
-    #   expect(store.get('animal')[:value]).to eq('dog')
-    # end
   end
 end

@@ -70,14 +70,10 @@ RSpec.describe KeyValueStore do
         band = Faker::Music::RockBand.name
         store.add(id, band)
         data[id] = band
-
-        puts "First key is #{id}" if data.size == 1
       end
 
       first_key = data.keys.first
-      puts "First key is #{first_key}"
       store.delete(first_key)
-
 
       expect(store.get(first_key)).to be_nil
     end
