@@ -27,11 +27,28 @@ ruby bin/run.rb
 ```
 
 ## Running Unit Tests
-To run the unit tests, use:
+To run the unit tests, use in terminal:
 
 ```bash
 rspec --format documentation
 ```
+
+<img width="719" alt="image" src="https://github.com/user-attachments/assets/aa8a3cac-3535-4131-8735-7cd6e675a541">
+
+## Configuration
+
+You can use the `config/constants.rb` file for adjustments.
+
+```ruby
+module Constants
+  MEMTABLE_SIZE_LIMIT = 30
+  PARTITION_LIMIT_PER_LEVEL = 2
+end
+```
+
+**MEMTABLE_SIZE_LIMIT**: Determines the lines limit will be written per file, for the memory table, and level 0 SSTable.
+**PARTITION_LIMIT_PER_LEVEL**: Determines the compaction interval. When the number of the files(partitions) reaches to this number then the compaction starts.
+
 
 ## Basic representation of the class relationship
 
