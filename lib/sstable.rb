@@ -3,9 +3,10 @@ require 'fileutils'
 
 require_relative '../config/paths'
 require_relative '../DTOs/pair'
+require_relative '../utils/filehelper'
 
 class SSTable
-  include Singleton, PairDTO
+  include Singleton, PairDTO, FileHelper
 
   def initialize
     @dir = Paths::DATA_DIR_PATH
@@ -41,6 +42,8 @@ class SSTable
   end
 
   def get(key, lvl = 0)
+    return nil if @shard_names.empty?
+
     if (@shard_names[lvl].nil? || @shard_names[lvl].empty?) && lvl < @level_depth
       get(key, lvl + 1)
     end
@@ -92,16 +95,7 @@ class SSTable
   def read(file_path)
     return @files_memo[file_path] if @files_memo[file_path]
 
-    data = {}
-    File.readlines(file_path).each do |line|
-      entry = JSON.parse(line)
-      data[entry['key']] = {
-        value: entry['value'],
-        timestamp: entry['timestamp']
-      }
-
-      data[entry['key']][:deleted] = true if entry['deleted']
-    end
+    data = read_from_file(file_path)
 
     @files_memo[file_path] = data
 
