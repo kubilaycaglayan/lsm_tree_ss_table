@@ -147,7 +147,7 @@ class SSTable
   def compress_if_needed(target_level = 0)
     should_compress_next_level = false
 
-    while @shard_names[target_level].size >= Constants::SHARD_MULTIPLIER_FACTOR_PER_LEVEL do
+    while @shard_names[target_level].size >= Constants::PARTITION_LIMIT_PER_LEVEL do
       shard_recent, shard = @shard_names[target_level].last(2)
       data_recent = read(File.join(@dir, shard_recent))
       data = read(File.join(@dir, shard))
