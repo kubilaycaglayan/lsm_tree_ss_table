@@ -85,7 +85,7 @@ RSpec.describe 'Write-ahead log' do
     end
   end
 
-  describe 'Write-ahead log recovers', :focus do
+  describe 'Write-ahead log recovers' do
     it 'Recovers data on initialization' do
       File.open(wal_path, 'w') do |file|
         file.puts('{"key":"1HLSA","value":"red","timestamp":"20240824153639"}')

@@ -136,6 +136,8 @@ class SSTable
     Dir.glob(File.join(@dir, '*')).each do |path|
       FileUtils.rm_rf(path) if File.exist?(path)
     end
+
+    compute_storage_state
   end
 
   def compress_if_needed(target_level = 0)
