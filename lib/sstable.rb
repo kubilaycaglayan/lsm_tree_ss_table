@@ -10,7 +10,7 @@ class SSTable
 
   def initialize
     @dir = Paths::DATA_DIR_PATH
-    drop
+    # drop
     @base_shard_id = -1
     compute_shard_id
     @shard_names = []
