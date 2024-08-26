@@ -1,7 +1,7 @@
 # Key-Value Storage with Write-Ahead Log, LSM Tree, and SSTable
 
 This repository is a practice project focused on building a key-value storage system.
-It uses the SSTable, [LSM Tree](https://github.com/nahi/avl_tree) and Write-Ahead Log components. 
+It uses the SSTable, [LSM Tree](https://github.com/nahi/avl_tree) and Write-Ahead Log components.
 It compresses files with merge sort algorithm. It includes a configuration file that you can set the size limits and compaction trigger numbers.
 
 ## Resources and Related Information
@@ -36,6 +36,29 @@ rspec --format documentation
 ```
 
 <img width="719" alt="image" src="https://github.com/user-attachments/assets/aa8a3cac-3535-4131-8735-7cd6e675a541">
+
+## How to use
+
+```ruby
+require_relative 'lib/key_value_store'
+
+# Create an instance of the KeyValueStore
+store = KeyValueStore.instance
+
+# Add a key-value pair
+store.add('key', 'value')
+
+# Get the value of a key
+store.get('key')
+
+# Update the value of a key
+store.update('key', 'new_value')
+
+# Delete a key
+store.delete('key')
+
+```
+
 
 ## Configuration
 
