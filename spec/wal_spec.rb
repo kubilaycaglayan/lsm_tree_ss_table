@@ -4,7 +4,7 @@ require_relative '../lib/key_value_store'
 require_relative '../lib/memtable'
 require_relative '../config/paths'
 require_relative '../config/constants'
-require_relative '../utils/filehelper'
+require_relative '../utils/file_helper'
 
 wal_path = Paths::WAL_FILE_PATH
 

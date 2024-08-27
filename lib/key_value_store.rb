@@ -5,7 +5,7 @@ require_relative 'exceptions'
 require_relative '../config/constants'
 require_relative '../config/prep'
 require_relative '../config/paths'
-require_relative '../utils/timehelper'
+require_relative '../utils/time_helper'
 
 class KeyValueStore
   include Singleton, TimeHelper
